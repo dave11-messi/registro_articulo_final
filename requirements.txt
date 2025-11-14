@@ -1,0 +1,4 @@
+Django>=4.0
+djangorestframework
+psycopg2-binary
+# Si usas el gestor de migraciones de Django para PostgreSQL
