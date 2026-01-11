@@ -1,6 +1,7 @@
 # Dockerfile
 
-# 1. Usar una imagen base de Python (version ligera recomendada)
+# 1. Usar una imagen base de Python. 
+# Nota: La 3.10.0 es funcional, pero 'python:3.10-slim' es más pequeña y rápida.
 FROM python:3.10.0 
 
 # 2. Establecer variables de entorno
@@ -11,23 +12,24 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /usr/src/app
 
 # 4. Copiar los archivos de dependencia e instalar dependencias
-# (Asegúrese de que el archivo se llame 'requirements.txt')
 COPY requirements.txt .
 RUN pip install --upgrade pip
+# Esto instalará gunicorn, django-environ, psycopg2-binary, etc.
 RUN pip install -r requirements.txt
 
 # 5. Copiar el resto del código de la aplicación al contenedor
 COPY . .
 
-# 6. Recolectar archivos estáticos y realizar migraciones (requerido para Django)
-# Nota: La recolección de estáticos no es necesaria si usa un servicio de almacenamiento como S3 o un CDN.
-# Si planea usar Whitenoise, SÍ es necesaria.
-RUN python manage.py collectstatic --noinput
+# 6. Recolección de estáticos: SE ELIMINA DE AQUÍ.
+# La línea "RUN python manage.py collectstatic --noinput" fue eliminada/comentada 
+# para evitar el error de configuración durante la CONSTRUCCIÓN de la imagen.
 
-# 7. Exponer el puerto por defecto de Gunicorn (o el que use)
+# 7. Exponer el puerto por defecto de Gunicorn (informativo, Render usa $PORT)
 EXPOSE 8000
 
-# 8. Comando para iniciar el servidor de producción (Gunicorn)
-# Asegúrese de instalar 'gunicorn' en su requirements.txt
-# Sustituya 'Registro_Articulo.wsgi' con la ruta a su archivo WSGI principal.
-CMD ["gunicorn", "Registro_Articulo", "--bind", "0.0.0.0:8000"]
+# 8. Comando para iniciar el servidor de producción (CMD)
+# Ejecuta comandos ENCADENADOS cuando Render inicia el CONTENEDOR:
+# 1. Ejecuta migraciones
+# 2. Recolecta estáticos
+# 3. Inicia Gunicorn en el puerto $PORT asignado por Render
+CMD python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn Registro_Articulo.wsgi:application --bind 0.0.0.0:$PORT
