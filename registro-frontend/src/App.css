@@ -1,0 +1,394 @@
+/* ---------------------------------------------------- */
+/* 1. Variables y Reset Básico (Actualizado) */
+/* ---------------------------------------------------- */
+:root {
+  /* Paleta de Colores Principal */
+  --color-accent: #1e3a8a; /* Azul Profundo (para textos importantes/botones) */
+  --color-accent-light: #3b82f6; /* Azul brillante (para gradientes) */
+  --color-background: #eef2f7; /* Gris muy claro, casi blanco */
+  --color-card-bg: #ffffff; /* Fondo de tarjetas */
+  --color-text: #333333; /* Color de texto principal */
+  --color-secondary: #6c757d; /* Gris para textos secundarios */
+  
+  /* Gradientes */
+  --gradient-primary: linear-gradient(135deg, var(--color-accent-light) 0%, var(--color-accent) 100%);
+  
+  /* Propiedades de Diseño */
+  --border-radius-lg: 12px;
+  --border-radius-sm: 6px;
+  --shadow-base: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-hover: 0 8px 16px rgba(0, 0, 0, 0.2);
+  --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  /* Aplicamos el gradiente al cuerpo de la página */
+  background: var(--color-background); 
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+/* ---------------------------------------------------- */
+/* 2. Estructura Principal (App.js) */
+/* ---------------------------------------------------- */
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.App-header {
+  background-color: var(--color-card-bg);
+  color: var(--color-text);
+  padding: 15px 30px;
+  /* Sombra más sutil para el encabezado */
+  box-shadow: var(--shadow-light); 
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky; /* Hacemos el header "sticky" */
+  top: 0;
+  z-index: 100;
+}
+
+.App-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-accent);
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+  max-width: 1300px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+footer {
+  background-color: var(--color-accent);
+  color: white;
+  text-align: center;
+  padding: 12px;
+  margin-top: 40px;
+  font-size: 0.9rem;
+}
+
+/* ---------------------------------------------------- */
+/* 3. Navegación (Navigation.js) */
+/* ---------------------------------------------------- */
+.main-nav ul {
+  list-style: none;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.main-nav a, .main-nav button {
+  background-color: transparent;
+  color: var(--color-accent);
+  padding: 10px 15px;
+  text-decoration: none;
+  border: 2px solid var(--color-accent-light);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.main-nav a:hover, .main-nav button:not(.logout-btn):hover {
+  background: var(--gradient-primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.main-nav .logout-btn {
+  background-color: var(--color-danger);
+  color: white;
+  border: none;
+  margin-left: 15px;
+}
+
+.main-nav .logout-btn:hover {
+  background-color: #c9302c;
+  transform: scale(1.05);
+}
+
+/* ---------------------------------------------------- */
+/* 4. Contenedores y Formularios (Login, SolicitudesPanel, RevisorPanel) */
+/* ---------------------------------------------------- */
+.login-container, .creation-form {
+  background-color: var(--color-card-bg);
+  padding: 35px;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-base);
+  max-width: 550px;
+  margin: 40px auto;
+  border-top: 5px solid var(--color-accent-light); /* Borde de color en la parte superior */
+}
+
+.login-container h2, .creation-form h2, .creation-form h3 {
+  text-align: center;
+  color: var(--color-accent);
+  margin-bottom: 25px;
+  font-weight: 700;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-top: 15px;
+}
+
+input[type="text"], input[type="password"], textarea, select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--border-radius-sm);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-size: 1rem;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--color-accent-light);
+  box-shadow: 0 0 0 1px var(--color-accent-light);
+  outline: none;
+}
+
+textarea {
+  resize: vertical;
+}
+
+/* Estilo para los botones principales con gradiente */
+.creation-form button[type="submit"], .login-container button[type="submit"], .solicitud-item button {
+  width: 100%;
+  padding: 14px;
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: all 0.3s ease-in-out;
+  margin-top: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.creation-form button[type="submit"]:hover, .login-container button[type="submit"]:hover, .solicitud-item button:hover {
+  background: linear-gradient(135deg, var(--color-accent) 0%, #0056b3 100%);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* ---------------------------------------------------- */
+/* 5. Lista de Solicitudes (Tarjetas) */
+/* ---------------------------------------------------- */
+.solicitud-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 25px;
+  margin-top: 30px;
+}
+
+.solicitud-item {
+  background-color: var(--color-card-bg);
+  padding: 25px;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-base); /* Sombra inicial profunda */
+  border-left: 6px solid; /* Borde de color más grueso */
+  transition: all 0.3s ease-in-out;
+}
+
+.solicitud-item:hover {
+  transform: translateY(-5px); /* Efecto de elevación notorio */
+  box-shadow: var(--shadow-hover);
+}
+
+.solicitud-item h3 {
+  color: var(--color-text);
+  font-size: 1.35rem;
+  margin-bottom: 5px;
+}
+
+.solicitud-item p {
+  font-size: 0.9rem;
+  color: var(--color-secondary);
+  margin-bottom: 5px;
+}
+
+.solicitud-item strong {
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+/* Colores de Borde basados en el Estado */
+.estado-pendiente { border-left-color: #ffc107; } 
+.estado-en_revision { border-left-color: #17a2b8; } 
+.estado-aprobada { border-left-color: #28a745; } 
+.estado-rechazada { border-left-color: #dc3545; }
+
+/* Estilo para el área de detalles (revisiones) */
+.solicitud-item details {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.solicitud-item summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-accent-light);
+  transition: color 0.2s;
+}
+
+.solicitud-item summary:hover {
+    color: var(--color-accent);
+}
+/* ---------------------------------------------------- */
+/* 6. Estilos de Imagen de Fondo (SplashImage) */
+/* ---------------------------------------------------- */
+
+.home-panel-container {
+    text-align: center;
+    padding: 30px;
+}
+
+.welcome-message {
+    color: var(--color-accent);
+    margin-bottom: 30px;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.navigation-hint {
+    margin-top: 30px;
+    font-style: italic;
+    color: var(--color-secondary);
+}
+
+.splash-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-card-bg);
+    padding: 40px;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-base);
+    max-width: 900px;
+    margin: 0 auto;
+    border: 1px solid #e0e7ff;
+}
+
+.splash-image {
+    width: 40%;
+    max-height: 250px;
+    object-fit: contain;
+    margin-right: 30px;
+}
+
+.splash-text-content {
+    width: 60%;
+    text-align: left;
+}
+
+.splash-text-content h2 {
+    color: var(--color-accent-light);
+    font-size: 1.6rem;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #e0e7ff;
+    padding-bottom: 10px;
+}
+
+.splash-text-content p {
+    font-size: 1.05rem;
+    color: var(--color-text);
+    margin-bottom: 10px;
+}
+
+.splash-note {
+    font-weight: 600;
+    color: var(--color-secondary);
+    margin-top: 15px;
+}
+
+/* Adaptación para pantallas pequeñas */
+@media (max-width: 768px) {
+    .splash-card {
+        flex-direction: column;
+        padding: 20px;
+    }
+    .splash-image {
+        width: 80%;
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+    .splash-text-content {
+        width: 100%;
+        text-align: center;
+    }
+    .splash-text-content h2 {
+        font-size: 1.4rem;
+    }
+}
+/* 7. Estilos para Botones de Revisor (RevisorPanel) */
+/* ---------------------------------------------------- */
+.action-buttons-revisor {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    /* Para que los botones no ocupen todo el ancho de la tarjeta */
+    width: fit-content; 
+}
+
+/* Base de todos los botones de acción del revisor */
+.action-buttons-revisor button {
+    /* Sobrescribir el estilo de botón global de .solicitud-item button */
+    width: auto; 
+    padding: 8px 15px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-top: 0; 
+    border: none;
+    border-radius: var(--border-radius-sm);
+    transition: all 0.3s ease-in-out;
+    color: white; /* Color de texto blanco por defecto */
+}
+
+/* Estilo específico para el botón de eliminar */
+.delete-button {
+    background-color: #dc3545; /* Rojo peligro */
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.4);
+}
+
+.delete-button:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.6);
+}
+
+/* Estilo específico para el botón de revisar */
+.review-button {
+    background: var(--gradient-primary); /* Usa el gradiente del diseño avanzado */
+}
+
+.review-button:hover {
+    background: linear-gradient(135deg, var(--color-accent) 0%, #0056b3 100%);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-hover);
+}

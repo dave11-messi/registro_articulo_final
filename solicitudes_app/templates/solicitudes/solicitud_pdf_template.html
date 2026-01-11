@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Solicitud {{ solicitud.pk }}</title>
+    <style>
+        @page { size: a4 portrait; margin: 1.5cm; }
+        body { font-family: sans-serif; font-size: 11pt; }
+        h1 { color: #007bff; border-bottom: 2px solid #ccc; padding-bottom: 10px; }
+        .data-label { font-weight: bold; margin-top: 10px; display: block; }
+        .estado { padding: 5px 10px; border-radius: 3px; background-color: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <p style="text-align: right; font-size: 9pt;">
+        Fecha de Generación: {{ fecha_generacion|date:"d/m/Y H:i" }}
+    </p>
+
+    <h1>Reporte de Solicitud #{{ solicitud.pk }}</h1>
+
+    <p><span class="data-label">Título:</span> {{ solicitud.titulo }}</p>
+    <p><span class="data-label">Solicitante:</span> {{ solicitud.solicitante.username }}</p>
+    <p><span class="data-label">Estado Actual:</span> <span class="estado">{{ solicitud.estado|upper }}</span></p>
+    
+    <hr>
+    
+    <h2>Detalles del Contenido</h2>
+    <p>{{ solicitud.contenido|safe }}</p> 
+
+    <hr>
+    
+    <h3>Revisiones Asociadas:</h3>
+    <ul>
+        {% for revision in solicitud.revision_set.all %}
+            <li>
+                <strong>Revisor:</strong> {{ revision.revisor.username }}<br>
+                <strong>Recomendación:</strong> {{ revision.get_recomendacion_display }}<br>
+                <strong>Comentarios:</strong> {{ revision.comentarios }}
+            </li>
+        {% empty %}
+            <li>No hay revisiones asociadas.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

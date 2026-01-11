@@ -1,0 +1,20 @@
+# .dockerignore
+
+# Ignorar la carpeta del entorno virtual
+entorno/
+venv/
+*.pyc
+__pycache__/
+
+# Archivos sensibles (¡CRUCIAL!)
+.env
+.DS_Store
+*.log
+
+# Si usa Git
+.git
+.gitignore
+
+# Archivos estáticos o media (si se usan servicios externos)
+# staticfiles/ 
+# media/

@@ -1,53 +1,49 @@
-# solicitudes_app/serializers.py
-
 from rest_framework import serializers
-from .models import Solicitud, Revision
-from django.contrib.auth.models import User 
+from .models import Solicitud, Revision 
+# Asumiendo que tus modelos Solicitud y Revision están definidos aquí o son accesibles.
 
-# ----------------------------------------------------
-# A. Serializer para el Usuario
-# Se usa para mostrar el solicitante y el revisor sin exponer la contraseña.
-# ----------------------------------------------------
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
-        read_only_fields = fields # Solo lectura, no permitimos editar usuarios aquí
-
-# ----------------------------------------------------
-# B. Serializer para las Revisiones
-# ----------------------------------------------------
+# ----------------------------------------------------------------------
+# 1. Serializer para la Revisión (para creación y listado básico)
+# ----------------------------------------------------------------------
 class RevisionSerializer(serializers.ModelSerializer):
-    revisor = UserSerializer(read_only=True) # Muestra el detalle del revisor
+    # CRÍTICO: Indicamos que 'solicitud' no es requerido para la entrada (required=False).
+    # Esto permite que serializer.is_valid() pase incluso si el frontend no lo envía.
+    solicitud = serializers.PrimaryKeyRelatedField(
+        queryset=Solicitud.objects.all(), 
+        write_only=True,
+        required=False # <--- CORRECCIÓN CLAVE
+    )
+    # Muestra el nombre de usuario del revisor
+    revisor = serializers.ReadOnlyField(source='revisor.username') 
 
     class Meta:
         model = Revision
-        # '__all__' incluye todos los campos del modelo Revision
-        fields = '__all__'
-        read_only_fields = ['fecha_revision', 'revisor']
-        
-# ----------------------------------------------------
-# C. Serializer Principal: Solicitud
-# ----------------------------------------------------
-class SolicitudSerializer(serializers.ModelSerializer):
-    # 1. Relación con el Solicitante (nested serialization)
-    solicitante = UserSerializer(read_only=True) 
+        # Nota: 'solicitud' ya no es requerido para la entrada de datos (gracias a required=False)
+        fields = ['id', 'solicitud', 'revisor', 'recomendacion', 'comentarios', 'fecha_revision']
+        read_only_fields = ['revisor', 'fecha_revision'] 
 
-    # 2. Relación inversa con las revisiones (para ver todas las revisiones de una solicitud)
-    # 'revisiones' es el related_name que definimos en el ForeignKey del modelo Revision.
-    revisiones = RevisionSerializer(many=True, read_only=True)
+
+# ----------------------------------------------------------------------
+# 2. Serializer para el Resumen de Revisión (para anidamiento en Solicitud)
+# ----------------------------------------------------------------------
+class RevisionSummarySerializer(serializers.ModelSerializer):
+    revisor = serializers.ReadOnlyField(source='revisor.username')
+    
+    class Meta:
+        model = Revision
+        fields = ['revisor', 'recomendacion', 'comentarios', 'fecha_revision']
+
+
+# ----------------------------------------------------------------------
+# 3. Serializer para la Solicitud (el que usa el frontend)
+# ----------------------------------------------------------------------
+class SolicitudSerializer(serializers.ModelSerializer):
+    solicitante = serializers.ReadOnlyField(source='solicitante.username')
+    
+    # Anida la lista de revisiones
+    revisiones = RevisionSummarySerializer(many=True, read_only=True) 
 
     class Meta:
         model = Solicitud
-        fields = [
-            'id', 
-            'titulo', 
-            'resumen', 
-            'tipo_trabajo', 
-            'estado', 
-            'fecha_creacion', 
-            'solicitante', 
-            'revisiones' # Incluye las revisiones en el detalle de la solicitud
-        ]
-        # Campos que solo pueden ser escritos por el sistema (no por el usuario al crear)
-        read_only_fields = ['fecha_creacion', 'estado', 'solicitante']
+        fields = ['id', 'solicitante', 'titulo', 'resumen', 'tipo_trabajo', 'estado', 'fecha_creacion', 'revisiones']
+        read_only_fields = ['solicitante', 'estado', 'fecha_creacion']

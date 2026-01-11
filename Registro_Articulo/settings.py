@@ -10,20 +10,36 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os # <--- NECESARIO para manejar rutas y .env
 from pathlib import Path
+import environ # <--- NECESARIO para manejar variables de entorno
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# ----------------------------------------------------
+# CONFIGURACIÓN DE DJANGO-ENVIRON
+# ----------------------------------------------------
+# Inicializar django-environ
+env = environ.Env(
+    # Define el valor por defecto si DATABASE_URL no se encuentra
+    DATABASE_URL=(str, 'sqlite:///db.sqlite3') 
+)
+
+# Esto busca el archivo .env en el directorio raíz de tu proyecto (donde está manage.py)
+environ.Env.read_env(os.path.join(BASE_DIR, '.env')) 
+# ----------------------------------------------------
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-j6ot%r-u9w5-eaje7%6b4jn)0&vry2hzqrpgv7vlu_)za&i)u^'
+# AHORA LEE LA CLAVE SECRETA DEL ARCHIVO .ENV
+SECRET_KEY = env('SECRET_KEY') 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True # Mantenemos DEBUG en True para desarrollo
 
 ALLOWED_HOSTS = []
 
@@ -38,13 +54,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'solicitudes_app',
-    'rest_framework',
-    'rest_framework.authtoken',
+    'rest_framework', # Asumo que lo usas
+    'rest_framework.authtoken', # Asumo que lo usas
+    'corsheaders', # Asumo que lo usas
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware', # Middleware de CORS
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -61,6 +79,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -72,19 +91,18 @@ TEMPLATES = [
 WSGI_APPLICATION = 'Registro_Articulo.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
+# ----------------------------------------------------
+# CONFIGURACIÓN DE BASE DE DATOS (Supabase/PostgreSQL)
+# ----------------------------------------------------
+# Reemplaza la configuración predeterminada de DATABASES:
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'registro_articulos',        # Cambia esto
-        'USER': 'postgres',     # Cambia esto
-        'PASSWORD': '1234',       # Cambia esto
-        'HOST': '127.0.0.1',               # O la IP de tu servidor DB
-        'PORT': '5432',                    # Puerto estándar de PostgreSQL
-    }
+    # Esto lee la variable DATABASE_URL del archivo .env
+    'default': env.db() 
 }
+
+if 'postgresql' in DATABASES['default']['ENGINE']:
+    DATABASES['default']['OPTIONS'] = {'sslmode': 'require'}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -126,14 +144,35 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-# Registro_Articulo/settings.py (Añadir al final)
 
+# Configuración de Django REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication', # <-- ¡Esta es la clave!
-        'rest_framework.authentication.SessionAuthentication', 
+        'rest_framework.authentication.TokenAuthentication',
+        # Puedes añadir SessionAuthentication para la interfaz web de Django
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     )
 }
+
+# Configuración de CORS
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:3000",  # Tu frontend React local
+    "http://localhost:3000",
+    # Añadir dominios de producción aquí si es necesario
+]
+
+# Permitir credenciales (cookies, etc.) para solicitudes de origen cruzado
+CORS_ALLOW_CREDENTIALS = True
+
+# settings.py
+
+# Use la URL de Render cuando la sepa, o use '*' temporalmente
+ALLOWED_HOSTS = ['*', 'su-dominio-de-render.onrender.com'] 
+
+# Importante: Desactive el modo DEBUG en producción
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_URL = '/static/'
