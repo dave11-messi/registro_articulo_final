@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import './SolicitudesPanel.css'; // Asegúrate de tener este archivo o un estilo similar
 
 // ----------------------------------------------------
 // ✅ CORRECCIÓN CLAVE: USAR VARIABLE DE ENTORNO
