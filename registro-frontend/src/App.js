@@ -11,6 +11,7 @@ import SplashImage from './components/SplashImage';
 // ----------------------------------------------------------------------
 // ✅ CORRECCIÓN CLAVE: USAR VARIABLE DE ENTORNO
 // ----------------------------------------------------------------------
+// LOCURA
 const BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://127.0.0.1:8000';
 // Endpoint para obtener la info del usuario desde Django (usando la nueva BASE_URL)
 const API_USER_INFO_URL = `${BASE_URL}/api/v1/user/info/`; 
