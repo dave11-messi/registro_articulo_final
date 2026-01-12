@@ -24,15 +24,132 @@ const handleDownloadPDF = (solicitudId, token) => {
 };
 
 
-// ----------------------------------------------------
-// ✅ CORRECCIÓN: Aceptar 'user' en las props.
-// ----------------------------------------------------
 function SolicitudesPanel({ token, user }) { 
-// ----------------------------------------------------
+    // ----------------------------------------------------
+    // ✅ DEFINICIÓN DE ESTILOS DENTRO DEL ARCHIVO
+    // ----------------------------------------------------
+    const styles = {
+        container: {
+            padding: '20px',
+            maxWidth: '900px',
+            margin: '0 auto',
+            backgroundColor: '#f9f9f9',
+            borderRadius: '8px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        },
+        panelHeader: {
+            borderBottom: '2px solid #ccc',
+            paddingBottom: '10px',
+            marginBottom: '20px',
+            color: '#333',
+        },
+        btnPrimary: {
+            backgroundColor: '#007bff',
+            color: 'white',
+            border: 'none',
+            padding: '10px 15px',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            fontSize: '16px',
+            margin: '10px 0',
+        },
+        btnSuccess: {
+            backgroundColor: '#28a745',
+            color: 'white',
+            border: 'none',
+            padding: '10px 15px',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            marginRight: '10px',
+        },
+        btnSecondary: {
+            backgroundColor: '#6c757d',
+            color: 'white',
+            border: 'none',
+            padding: '10px 15px',
+            borderRadius: '5px',
+            cursor: 'pointer',
+        },
+        btnDownload: {
+            backgroundColor: '#17a2b8',
+            color: 'white',
+            border: 'none',
+            padding: '8px 12px',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            marginTop: '10px',
+        },
+        formContainer: {
+            backgroundColor: 'white',
+            padding: '20px',
+            borderRadius: '8px',
+            border: '1px solid #ddd',
+            marginBottom: '20px',
+        },
+        formGroup: {
+            marginBottom: '15px',
+        },
+        label: {
+            display: 'block',
+            marginBottom: '5px',
+            fontWeight: 'bold',
+            color: '#555',
+        },
+        input: {
+            width: '100%',
+            padding: '10px',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            boxSizing: 'border-box',
+        },
+        textarea: {
+            width: '100%',
+            padding: '10px',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            boxSizing: 'border-box',
+            minHeight: '100px',
+        },
+        formActions: {
+            marginTop: '20px',
+            textAlign: 'right',
+        },
+        list: {
+            listStyle: 'none',
+            padding: 0,
+        },
+        listItem: {
+            backgroundColor: 'white',
+            border: '1px solid #eee',
+            borderRadius: '6px',
+            padding: '15px',
+            marginBottom: '10px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+        },
+        loading: {
+            textAlign: 'center',
+            fontSize: '18px',
+            color: '#007bff',
+            padding: '50px 0',
+        },
+        error: {
+            textAlign: 'center',
+            fontSize: '18px',
+            color: '#dc3545',
+            padding: '50px 0',
+            backgroundColor: '#f8d7da',
+            border: '1px solid #f5c6cb',
+            borderRadius: '5px',
+        }
+    };
+    // ----------------------------------------------------
+
+
     const [solicitudes, setSolicitudes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [isCreating, setIsCreating] = useState(false); // Nuevo estado para mostrar/ocultar el formulario
+    const [isCreating, setIsCreating] = useState(false); 
 
     const [newSolicitudData, setNewSolicitudData] = useState({
         titulo: '',
@@ -42,9 +159,7 @@ function SolicitudesPanel({ token, user }) {
     });
 
 
-    // ----------------------------------------------------
     // FUNCIÓN PARA OBTENER LAS SOLICITUDES DEL USUARIO
-    // ----------------------------------------------------
     const fetchUserSolicitudes = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -54,7 +169,6 @@ function SolicitudesPanel({ token, user }) {
                     'Authorization': `Token ${token}`,
                 },
             };
-            // Endpoint para obtener las solicitudes del usuario logueado
             const response = await axios.get(`${API_BASE_URL}mis_solicitudes/`, config);
             
             setSolicitudes(response.data);
@@ -70,16 +184,13 @@ function SolicitudesPanel({ token, user }) {
         fetchUserSolicitudes();
     }, [fetchUserSolicitudes]);
 
-    // ----------------------------------------------------
-    // ✅ LÓGICA DEL FORMULARIO DE CREACIÓN (AÑADIDA)
-    // ----------------------------------------------------
+    // LÓGICA DEL FORMULARIO DE CREACIÓN 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setNewSolicitudData(prev => ({ ...prev, [name]: value }));
     };
 
     const handleFileChange = (e) => {
-        // Solo guarda el primer archivo seleccionado
         setNewSolicitudData(prev => ({ ...prev, archivo_adjunto: e.target.files[0] }));
     };
 
@@ -94,7 +205,6 @@ function SolicitudesPanel({ token, user }) {
         setLoading(true);
         setError(null);
 
-        // Crear objeto FormData para enviar datos mixtos (texto + archivo)
         const formData = new FormData();
         formData.append('titulo', newSolicitudData.titulo);
         formData.append('resumen', newSolicitudData.resumen);
@@ -105,16 +215,15 @@ function SolicitudesPanel({ token, user }) {
             const config = {
                 headers: {
                     'Authorization': `Token ${token}`,
-                    'Content-Type': 'multipart/form-data', // Crucial para archivos
+                    'Content-Type': 'multipart/form-data',
                 },
             };
             
             await axios.post(API_BASE_URL, formData, config);
             
-            // Limpiar formulario y recargar lista
             setNewSolicitudData({ titulo: '', resumen: '', tipo_trabajo: 'ART', archivo_adjunto: null });
             setIsCreating(false);
-            fetchUserSolicitudes(); // Recargar la lista para ver la nueva solicitud
+            fetchUserSolicitudes(); 
             
         } catch (err) {
             console.error("Error al crear solicitud:", err.response ? err.response.data : err);
@@ -123,108 +232,113 @@ function SolicitudesPanel({ token, user }) {
             setLoading(false);
         }
     };
-    // ----------------------------------------------------
 
-    if (loading) return <div className="panel-loading">Cargando tus solicitudes...</div>;
-    if (error) return <div className="panel-error">{error}</div>;
 
-    // Los revisores (staff) no deberían usar este panel para crear
-    const isSolicitante = user && !user.is_staff;
+    if (loading) return <div style={styles.loading}>Cargando tus solicitudes...</div>;
+    if (error) return <div style={styles.error}>{error}</div>;
 
 
     return (
-        <div className="solicitudes-panel-container">
-            <h2>Panel de Solicitudes</h2>
+        <div style={styles.container}>
+            <h2 style={styles.panelHeader}>Panel de Solicitudes</h2>
 
-            {/* ------------------------------------------- */}
-            {/* ✅ FORMULARIO DE CREACIÓN DE SOLICITUD (Visible solo para Solicitantes) */}
-            {/* ------------------------------------------- */}
-            {isSolicitante && (
-                <div className="solicitud-creation-section">
-                    {!isCreating ? (
-                        <button 
-                            className="btn btn-primary new-solicitud-btn" 
-                            onClick={() => setIsCreating(true)}
-                        >
-                            + Crear Nueva Solicitud
-                        </button>
-                    ) : (
-                        <div className="form-container">
-                            <h3>Nueva Solicitud</h3>
-                            <form onSubmit={handleCreateSolicitud} className="solicitud-form">
-                                
-                                <label>Título:</label>
+            {/* ✅ FORMULARIO DE CREACIÓN (Visible para CUALQUIER USUARIO AUTENTICADO) */}
+            <div className="solicitud-creation-section">
+                {!isCreating ? (
+                    <button 
+                        style={styles.btnPrimary} 
+                        onClick={() => setIsCreating(true)}
+                    >
+                        + Crear Nueva Solicitud
+                    </button>
+                ) : (
+                    <div style={styles.formContainer}>
+                        <h3>Nueva Solicitud</h3>
+                        <form onSubmit={handleCreateSolicitud} className="solicitud-form">
+                            
+                            <div style={styles.formGroup}>
+                                <label style={styles.label}>Título:</label>
                                 <input
                                     type="text"
                                     name="titulo"
                                     value={newSolicitudData.titulo}
                                     onChange={handleInputChange}
+                                    style={styles.input}
                                     required
                                 />
+                            </div>
 
-                                <label>Resumen:</label>
+                            <div style={styles.formGroup}>
+                                <label style={styles.label}>Resumen:</label>
                                 <textarea
                                     name="resumen"
                                     value={newSolicitudData.resumen}
                                     onChange={handleInputChange}
+                                    style={styles.textarea}
                                     required
                                 />
+                            </div>
 
-                                <label>Tipo de Trabajo:</label>
+                            <div style={styles.formGroup}>
+                                <label style={styles.label}>Tipo de Trabajo:</label>
                                 <select
                                     name="tipo_trabajo"
                                     value={newSolicitudData.tipo_trabajo}
                                     onChange={handleInputChange}
+                                    style={styles.input}
                                     required
                                 >
                                     {Object.entries(TIPO_TRABAJO_CHOICES).map(([key, value]) => (
                                         <option key={key} value={key}>{value}</option>
                                     ))}
                                 </select>
+                            </div>
 
-                                <label>Archivo (PDF):</label>
+                            <div style={styles.formGroup}>
+                                <label style={styles.label}>Archivo (PDF):</label>
                                 <input
                                     type="file"
                                     name="archivo_adjunto"
                                     onChange={handleFileChange}
                                     accept="application/pdf"
-                                    required={!newSolicitudData.archivo_adjunto} // Requerido al inicio
+                                    required={!newSolicitudData.archivo_adjunto}
+                                    style={styles.input}
                                 />
+                            </div>
 
-                                <div className="form-actions">
-                                    <button type="submit" disabled={loading} className="btn btn-success">
-                                        {loading ? 'Enviando...' : 'Enviar Solicitud'}
-                                    </button>
-                                    <button 
-                                        type="button" 
-                                        onClick={() => setIsCreating(false)} 
-                                        className="btn btn-secondary"
-                                    >
-                                        Cancelar
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    )}
-                </div>
-            )}
-            <hr />
+                            <div style={styles.formActions}>
+                                <button type="submit" disabled={loading} style={styles.btnSuccess}>
+                                    {loading ? 'Enviando...' : 'Enviar Solicitud'}
+                                </button>
+                                <button 
+                                    type="button" 
+                                    onClick={() => setIsCreating(false)} 
+                                    style={styles.btnSecondary}
+                                >
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                )}
+            </div>
+            <hr style={{ margin: '20px 0', border: '0', borderTop: '1px solid #ddd' }} />
             
             {/* Lista de Solicitudes */}
-            <h3>Historial de Solicitudes</h3>
+            <h3 style={{ color: '#555' }}>Historial de Solicitudes</h3>
             
             {solicitudes.length === 0 ? (
                 <p>No has enviado ninguna solicitud.</p>
             ) : (
-                <ul className="solicitud-list">
+                <ul style={styles.list}>
                     {solicitudes.map(solicitud => (
-                        <li key={solicitud.id} className="solicitud-item">
-                            <h4>{solicitud.titulo}</h4>
-                            <p>Tipo: {TIPO_TRABAJO_CHOICES[solicitud.tipo_trabajo]}</p>
-                            <p>Estado: **{solicitud.estado}**</p>
-                            <p className="solicitud-date">Fecha de Envío: {new Date(solicitud.fecha_creacion).toLocaleDateString()}</p>
+                        <li key={solicitud.id} style={styles.listItem}>
+                            <h4 style={{ margin: '0 0 5px 0', color: '#007bff' }}>{solicitud.titulo}</h4>
+                            <p style={{ margin: '0' }}>Tipo: {TIPO_TRABAJO_CHOICES[solicitud.tipo_trabajo]}</p>
+                            <p style={{ margin: '0' }}>Estado: **{solicitud.estado}**</p>
+                            <p style={{ margin: '0' }}>Fecha de Envío: {new Date(solicitud.fecha_creacion).toLocaleDateString()}</p>
                             <button 
-                                className="btn btn-download"
+                                style={styles.btnDownload}
                                 onClick={() => handleDownloadPDF(solicitud.id, token)}
                             >
                                 Descargar PDF
