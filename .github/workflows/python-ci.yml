@@ -1,0 +1,40 @@
+# .github/workflows/python-ci.yml
+
+name: Python CI (Testing Básico)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    # Si tienes tu código Python en una subcarpeta (ej: 'registro-backend'), 
+    # usa 'working-directory' para apuntar a ella.
+    # defaults:
+    #   run:
+    #     working-directory: ./registro-backend 
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11' # Ajusta a tu versión de Python (ej: 3.10 o 3.11)
+
+    - name: Install Dependencies (Django)
+      run: |
+        python -m pip install --upgrade pip
+        # Asumiendo que tienes un requirements.txt en la carpeta del backend
+        pip install -r ./registro-backend/requirements.txt
+      
+    - name: Run Basic Test / Lint
+      run: |
+        echo "✅ Ejecutando un chequeo básico del proyecto Django..."
+        # Puedes reemplazar esto con: python manage.py test
+        # O un chequeo de formato: pip install black && black --check .
+        ls -la
